@@ -1,0 +1,28 @@
+.landing_wrapper{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 100px;
+    padding: 2rem;
+}
+
+.landing_text{
+    width: 40%;
+}
+
+.landing_text h1{
+    font-size: 4rem;
+}
+
+.landing_img{
+    width: 50%;
+    margin-left: 2rem;
+}
+
+.landing_img img {
+    width: 100%;
+    height: auto;
+    max-width: 600px;
+    border-radius: 8px;
+}
+

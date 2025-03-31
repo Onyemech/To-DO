@@ -1,42 +1,106 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+:root {
+    --register:rgb(0, 132, 255);
+    --darkRegister:rgb(4, 110, 209);
+    --login:rgb(211, 233, 253);
+    --darkLogin:rgb(185, 214, 241);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+body{
+    margin: 0;
+    padding: 0;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    width: 100%;
+    background-color: white;
+    box-shadow: 0px 0.233px 8px lightgray;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 2rem;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.logo_wrapper img{
+    width: 70px;
 }
 
-.card {
-  padding: 2em;
+.logo_wrapper{
+    display: flex;
+    align-items: center;
 }
 
-.read-the-docs {
-  color: #888;
+.logo_wrapper h4{
+    font-weight: bold;
+    margin: 0px;
+    margin-left: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.navigation-menu{
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    padding-right: 2rem;
+}
+
+.navigation-menu li{
+    position: relative;
+}
+
+.navigation-menu li a:hover:not(.activeNav) {
+    background-color: whitesmoke;
+    color: var(--register);
+}
+.navigation-menu li a{
+    position: relative;
+    display: block;
+    text-decoration: none;
+    padding: 1rem 2rem;
+    font-size: 15px;
+    color: rgb(82, 81, 81);
+}
+.registerBtn{
+    background-color: var(--register);
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 30px;
+    margin: 1rem;
+}
+
+.registerBtn:hover{
+    background-color: var(--darkRegister);
+    font-size: larger;
+}
+
+.loginBtn{
+    background-color: var(--darkLogin);
+    color: blue;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 30px;
+    margin: 1rem;
+}
+
+.primaryText{
+    color: var(--register);
+}
+
+.activeNav{
+    background-color: whitesmoke;
+}
+
+.loginBtn:hover{
+    background-color: var(--darkLogin);
+    font-size: larger;
 }
