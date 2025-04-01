@@ -34,6 +34,10 @@ async function registerUser(req, res) {
 async function loginUser(req, res) {
     try{
         const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({error: 'Email and password are required'});
+        }
+
         const user = await User.findOne({email})
         if (!user) {
             return res.status(401).send({error: 'User does not exist'});
@@ -42,18 +46,22 @@ async function loginUser(req, res) {
         if (!isPasswordValid) {
             return res.status(401).send({error: 'Wrong password'});
         }
-        let token = jwt.sign({userId: user._id}, process.env.JWT_SECRET, {expiresIn: '1h'});
+        let token = jwt.sign({userId: user._id}, secretKey, {expiresIn: '1h'});
         let finalData = {
             userId: user._id,
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
-            token
+            token,
+            expiresIn: 3600
         }
         res.send(finalData);
     }catch (err){
-        console.log(err);
-        return res.status(400).json(err)
+        console.log('Login error',err);
+        return res.status(400).json({
+            error: 'Login failed',
+            details: err.message
+        })
     }
 }
 

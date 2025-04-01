@@ -1,1 +1,7 @@
-console.log('Happy developing ✨')
+import { message } from 'antd';
+
+message.config({
+    top: 100,
+    duration: 2,
+    maxCount: 3,
+});
