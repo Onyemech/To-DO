@@ -25,9 +25,13 @@ nav {
 }
 
 .logo_wrapper img{
-    width: 70px;
+    width: 60px;
 }
 
+.logo_wrapper img:hover{
+    cursor: pointer;
+    font-size: larger;
+}
 .logo_wrapper{
     display: flex;
     align-items: center;
