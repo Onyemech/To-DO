@@ -1,41 +1,48 @@
-import React, {useEffect, useState} from "react";
-import logo from '../assets/logo.gif'
-import {Link, useNavigate} from "react-router-dom"
-import {getUserDetails} from "../util/GetUser.js";
-import {Dropdown} from "antd";
-import avatar from "../assets/login.png"
-import './NavBar.css';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Dropdown } from "antd";
+import avatar from "../assets/login.png";
+import logo from "../assets/logo.gif";
+import "./NavBar.css";
 
-export default function NavBar({active}) {
+export default function NavBar({ active }) {
     const [user, setUser] = useState(null);
+    const [logoutClicked, setLogoutClicked] = useState(false);
     const navigate = useNavigate();
 
-    console.log('User in NavBar:', user);
-
     useEffect(() => {
-        const checkAuth = () => {
-            const userData = getUserDetails();
-            setUser(userData);
-        };
-
-        checkAuth();
-        window.addEventListener('storage', checkAuth);
-
-        return () => window.removeEventListener('storage', checkAuth);
+        try {
+            const userData = localStorage.getItem("user");
+            setUser(userData ? JSON.parse(userData) : null);
+        } catch (error) {
+            console.error("Failed to parse user data:", error);
+            setUser(null);
+        }
     }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem('user');
-        setUser(null);
-        window.dispatchEvent(new Event('storage'));
-        navigate('/login');
-    }
+        if (logoutClicked) return;
+
+        setLogoutClicked(true);
+
+        try {
+            localStorage.removeItem("user");
+            setUser(null);
+            navigate("/login");
+        } catch (error) {
+            console.error("Logout failed:", error);
+        } finally {
+            setLogoutClicked(false);
+        }
+    };
 
     const items = [
         {
-            key: '1',
+            key: "1",
             label: (
-                <span onClick={handleLogout}>Logout</span>
+                <span onClick={handleLogout}>
+                    {logoutClicked ? "Logging out..." : "Logout"}
+                </span>
             ),
         },
     ];
@@ -74,11 +81,12 @@ export default function NavBar({active}) {
                             }}
                             placement={"bottom"}
                             arrow
+                            trigger={["click"]}
                         >
                             <div className="avatar-container">
                                 <img src={avatar} alt="avatar" className="avatar-image" />
                                 <span className="avatar-name">
-                                    {user?.firstName ? `Hello, ${user.firstName}` : "Active"}
+                                    {user?.firstName ? `Hello, ${user.firstName}` : "Account"}
                                 </span>
                             </div>
                         </Dropdown>
@@ -88,7 +96,7 @@ export default function NavBar({active}) {
                             <li><Link to="/register">Register</Link></li>
                         </>
                     )}
-                    </ul>
+                </ul>
             </nav>
         </header>
     )
