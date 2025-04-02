@@ -1,7 +1,10 @@
 import React from 'react'
+import NavBar from "../../components/NavBar.jsx";
 
 export default function ToDoList() {
     return (
-        <div>ToDoList</div>
+        <>
+            <NavBar active={"myTask"}/>
+        </>
     )
 }

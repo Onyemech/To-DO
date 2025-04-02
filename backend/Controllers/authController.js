@@ -7,18 +7,36 @@ const secretKey = process.env.SECRET_KEY;
 async function registerUser(req, res) {
     const { firstName, lastName, email, password } = req.body;
 
+    if (!firstName || !lastName || !email || !password) {
+        return res.status(400).json({
+            error: 'All fields are required',
+            fields: { firstName, lastName, email, password }
+        });
+    }
+
     try {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ error: 'User already exists' });
+            return res.status(409).json({
+                success: false,
+                error: 'Registration Failed.',
+                message: 'User already exists',
+                field: 'email'
+            });
         }
 
-        const user = new User({ firstName, lastName, email, password });
+        const user = new User({
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            email: email.toLowerCase().trim(),
+            password
+        });
         const result = await user.save();
 
-        console.log(result);
         return res.status(201).json({
-            message: 'User registered successfully',
+            firstName: firstName.trim(),
+            success: true,
+            message: 'Registration successful',
         });
 
     } catch(err) {
@@ -30,7 +48,6 @@ async function registerUser(req, res) {
     }
 }
 
-
 async function loginUser(req, res) {
     try{
         const { email, password } = req.body;
@@ -38,14 +55,16 @@ async function loginUser(req, res) {
             return res.status(400).json({error: 'Email and password are required'});
         }
 
-        const user = await User.findOne({email})
+        const user = await User.findOne({email});
         if (!user) {
-            return res.status(401).send({error: 'User does not exist'});
+            return res.status(401).send({message: 'User does not exist'});
         }
+
         const isPasswordValid = await user.comparePassword(password);
         if (!isPasswordValid) {
-            return res.status(401).send({error: 'Wrong password'});
+            return res.status(401).send({message: 'You Entered the Wrong password'});
         }
+
         let token = jwt.sign({userId: user._id}, secretKey, {expiresIn: '1h'});
         let finalData = {
             userId: user._id,
@@ -61,7 +80,7 @@ async function loginUser(req, res) {
         return res.status(400).json({
             error: 'Login failed',
             details: err.message
-        })
+        });
     }
 }
 

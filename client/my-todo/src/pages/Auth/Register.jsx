@@ -2,20 +2,42 @@ import React,{useState} from 'react'
 import styles from './register.module.css';
 import register from '../../assets/register.gif'
 import {Link, useNavigate} from "react-router-dom";
-import {Button, Input} from 'antd';
+import {App, Button, Input} from 'antd';
+import AuthServices from "../../services/authServices.js";
 
 export default function Register() {
+    const { message } = App.useApp();
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = (e)=>{
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Register");
-
-        navigate("/api/login");
+        try {
+            setLoading(true);
+            const dto = {
+                firstName: firstName.trim(),
+                lastName: lastName.trim(),
+                email: email.toLowerCase().trim(),
+                password
+            };
+            const response = await AuthServices.registerUser(dto);
+            message.success(response.message || "Registration Successful");
+            setTimeout(() => navigate('/todo-list'), 1500);
+        } catch (err) {
+            if (err.response?.status === 409) {
+                message.error(err.response.data?.message || "User already exists");
+            } else {
+                message.error(err.response?.data?.error ||
+                    err.message ||
+                    'Registration failed. Please try again.');
+            }
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (

@@ -4,6 +4,7 @@ import login from '../../assets/login.gif'
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Input, App } from 'antd';
 import AuthServices from "../../services/authServices.js";
+import {getErrorMessage} from "../../util/GetError.js";
 
 export default function Login() {
     const { message } = App.useApp();
@@ -18,7 +19,13 @@ export default function Login() {
             setLoading(true);
             let dto = { email, password };
             const response = await AuthServices.loginUser(dto);
-            localStorage.setItem("toDoAppUser", JSON.stringify(response.data));
+            console.log("Login API Response: ",response);
+            localStorage.setItem('user', JSON.stringify({
+                firstName: response.data.firstName,
+                userId: response.data.userId,
+                email: response.data.email,
+                token: response.data.token
+            }));
 
             message.success("Login successful");
             setTimeout(() => {
@@ -27,7 +34,7 @@ export default function Login() {
             }, 1000);
         } catch (err) {
             console.log(err);
-            message.error(err.response?.data?.message || "Login failed");
+            message.error(getErrorMessage(err));
             setLoading(false);
         }
     }
