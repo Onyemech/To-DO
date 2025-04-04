@@ -5,8 +5,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button, Input, App } from 'antd';
 import AuthServices from "../../services/authServices.js";
 import {getErrorMessage} from "../../util/GetError.js";
+import {useAuth} from "../../context/authContext.jsx";
 
 export default function Login() {
+    const {login: authLogin} = useAuth();
+
     const { message } = App.useApp();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -19,13 +22,19 @@ export default function Login() {
             setLoading(true);
             let dto = { email, password };
             const response = await AuthServices.loginUser(dto);
+
             console.log("Login API Response: ",response);
-            localStorage.setItem('user', JSON.stringify({
+            const userData={
                 firstName: response.data.firstName,
                 userId: response.data.userId,
                 email: response.data.email,
                 token: response.data.token
-            }));
+            };
+            authLogin(userData);
+            navigate('/todo-list');
+
+            localStorage.setItem('user', JSON.stringify(userData));
+            console.log('Stored user:', userData);
 
             message.success("Login successful");
             setTimeout(() => {

@@ -50,7 +50,7 @@ exports.updateToDo = async (req,res)=>{
         const data = req.body;
         const result = await ToDo.findByIdAndUpdate(id, {$set:data},{returnOriginal:false});
         console.log(result);
-        res.send({message:'ToDo list Updated'})
+        res.send({message:'ToDo Task Updated'})
     }catch (err){
         console.log(err);
         res.status(500).send(err);
@@ -58,7 +58,6 @@ exports.updateToDo = async (req,res)=>{
 }
 
 exports.deleteToDo = async (req,res) =>{
-
     try{
       const {id} = req.params;
       const result = await ToDo.findByIdAndDelete(id);

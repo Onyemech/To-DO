@@ -1,33 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Dropdown } from "antd";
 import avatar from "../assets/login.png";
 import logo from "../assets/logo.gif";
 import "./NavBar.css";
+import { useAuth } from "../context/authContext.jsx";
 
 export default function NavBar({ active }) {
-    const [user, setUser] = useState(null);
     const [logoutClicked, setLogoutClicked] = useState(false);
     const navigate = useNavigate();
+    const {user, logout} = useAuth();
 
-    useEffect(() => {
-        try {
-            const userData = localStorage.getItem("user");
-            setUser(userData ? JSON.parse(userData) : null);
-        } catch (error) {
-            console.error("Failed to parse user data:", error);
-            setUser(null);
-        }
-    }, []);
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         if (logoutClicked) return;
 
         setLogoutClicked(true);
 
         try {
-            localStorage.removeItem("user");
-            setUser(null);
+            await logout();
             navigate("/login");
         } catch (error) {
             console.error("Logout failed:", error);

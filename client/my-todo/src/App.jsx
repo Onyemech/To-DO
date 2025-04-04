@@ -7,21 +7,24 @@ import ToDoList from "./pages/ToDo/ToDoList.jsx";
 import './App.css';
 import 'antd/dist/reset.css';
 import { App as AntApp } from 'antd';
+import {AuthProvider} from "./context/authContext.jsx";
 
 function App() {
     const { message } = AntApp.useApp();
 
     return (
-        <AntApp>
-            <BrowserRouter>
-                <Routes>
-                    <Route path="/" element={<Landing/>} />
-                    <Route path="/register" element={<Register/>} />
-                    <Route path="/login" element={<Login/>} />
-                    <Route path="/todo-list" element={<ToDoList/>} />
-                </Routes>
-            </BrowserRouter>
-        </AntApp>
+        <AuthProvider>
+            <AntApp>
+                <BrowserRouter>
+                    <Routes>
+                        <Route path="/" element={<Landing/>} />
+                        <Route path="/register" element={<Register/>} />
+                        <Route path="/login" element={<Login/>} />
+                        <Route path="/todo-list" element={<ToDoList/>} />
+                    </Routes>
+                </BrowserRouter>
+            </AntApp>
+        </AuthProvider>
     )
 }
 
