@@ -18,35 +18,41 @@ export default function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const normalizedEmail = email.toLowerCase().trim();
+
+        if (!normalizedEmail) {
+            message.error("Please enter an email address");
+            return;
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+            message.error("Please enter a valid email address");
+            return;
+        }
+
         try {
             setLoading(true);
-            let dto = { email, password };
+            let dto = { email: normalizedEmail, password };
             const response = await AuthServices.loginUser(dto);
 
-            console.log("Login API Response: ",response);
-            const userData={
+            const userData = {
                 firstName: response.data.firstName,
-                userId: response.data.userId,
-                email: response.data.email,
+                userId: response.data.userId.toString(),
+                email: response.data.email.toLowerCase(),
                 token: response.data.token
             };
             authLogin(userData);
-            navigate('/todo-list');
-
             localStorage.setItem('user', JSON.stringify(userData));
-            console.log('Stored user:', userData);
 
             message.success("Login successful");
-            setTimeout(() => {
-                navigate('/todo-list');
-                setLoading(false);
-            }, 1000);
+            navigate('/todo-list');
         } catch (err) {
             console.log(err);
             message.error(getErrorMessage(err));
+        } finally {
             setLoading(false);
         }
-    }
+    };
 
     return (
         <div className={styles.login_card}>

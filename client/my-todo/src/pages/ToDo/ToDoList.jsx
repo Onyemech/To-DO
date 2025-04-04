@@ -21,25 +21,28 @@ export default function ToDoList() {
 
     useEffect(() => {
         const fetchTasks = async () => {
+            console.log("User in ToDoList:", user);
+            if (!user?.userId) {
+                setAllToDo([]);
+                return;
+            }
             try {
-                const user = JSON.parse(localStorage.getItem('user'));
-                if (user?.userId) {
-                    const response = await TodoServices.getAllTToDo(user.userId);
-                    setAllToDo(response.data || []);
-                } else {
-                    setAllToDo([]);
-                }
+                setLoading(true);
+                const response = await TodoServices.getAllToDo(user.userId);
+                console.log("Full response: ", response);
+
+                const tasks = response.data?.data || response.data || [];
+                setAllToDo(tasks);
+
             } catch (error) {
                 console.error("Error fetching tasks:", error);
+                setAllToDo([]);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchTasks();
-
-        const handleAuthChange = () => fetchTasks();
-        window.addEventListener('authChange', handleAuthChange);
-
-        return () => window.removeEventListener('authChange', handleAuthChange);
     }, [user?.userId]);
 
     const handleSubmitTask = async () => {

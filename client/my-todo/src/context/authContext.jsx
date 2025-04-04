@@ -6,12 +6,10 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
     const login = (userData) => {
-        localStorage.setItem('user', JSON.stringify({
-            ...userData,
-            _lastUpdate: Date.now()
-        }));
-        setUser(userData);
-        window.dispatchEvent()
+        const updatedUserData = { ...userData, _lastUpdate: Date.now() };
+        localStorage.setItem('user', JSON.stringify(updatedUserData));
+        setUser(updatedUserData);
+        window.dispatchEvent(new Event('authChange'));
     };
 
     const logout = () => {

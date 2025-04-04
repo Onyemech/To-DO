@@ -81,7 +81,7 @@ export default {
         return handleRequest('delete', `/delete-to-do/${taskId}`);
     },
 
-    getAllTToDo: async (userId) => {
+    getAllToDo: async (userId) => {
         if (!userId) {
             throw new Error("User ID is required");
         }

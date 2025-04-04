@@ -18,10 +18,21 @@ export default function Register() {
         e.preventDefault();
         try {
             setLoading(true);
+            const normalizedEmail = email.toLowerCase().trim();
+
+            if (!normalizedEmail) {
+                message.error("Please enter an email address");
+                return;
+            }
+
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+                message.error("Please enter a valid email address");
+                return;
+            }
             const dto = {
                 firstName: firstName.trim(),
                 lastName: lastName.trim(),
-                email: email.toLowerCase().trim(),
+                email: normalizedEmail,
                 password
             };
             const response = await AuthServices.registerUser(dto);
@@ -60,7 +71,7 @@ export default function Register() {
                 </div>
                 <div className={styles.input_wrapper}>
                     <Input
-                        placeholder={"Email"}
+                        placeholder={"someone@example.com"}
                         value={email}
                         onChange={(e)=>setEmail(e.target.value)} />
                 </div>

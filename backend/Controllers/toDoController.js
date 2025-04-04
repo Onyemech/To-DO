@@ -1,17 +1,18 @@
 const ToDo = require("../models/TodoList");
+const mongoose = require('mongoose');
 
 exports.createToDo = async (req, res) => {
     try {
         console.log('Request Body:', req.body);
-        if (!req.body.title || !req.body.description) {
-            return res.status(400).json({ message: "Title and description are required" });
+        if (!req.body.title) {
+            return res.status(400).json({ message: "Title is required" });
         }
 
         const dto = {
             title: req.body.title,
             description: req.body.description,
             isCompleted: req.body.isCompleted || false,
-            ...(req.user && { createdBy: req.user.userId })
+            ...(req.user && { createdBy: new mongoose.Types.ObjectId(req.user.userId) })
         };
 
         const todo = new ToDo(dto);
@@ -31,18 +32,27 @@ exports.createToDo = async (req, res) => {
     }
 }
 
-exports.getAllToDo = async  (req,res)=>{
-    let {userId} = req.params;
+exports.getAllToDo = async (req, res) => {
+    const { userId } = req.params;
 
-    try{
-        const result = await ToDo.find({createdBy: userId});
-        res.json(result);
-    }catch (err) {
-        console.log(err);
-        res.status(500).json(err);
+    try {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: "Invalid userId format" });
+        }
+
+        const tasks = await ToDo.find({
+            createdBy: new mongoose.Types.ObjectId(userId)
+        });
+
+        res.json({
+            success: true,
+            data: tasks
+        });
+    } catch (err) {
+        console.error("Error in getAllToDo:", err.message, err.stack);
+        res.status(500).json({ message: "Error fetching tasks", error: err.message });
     }
-
-}
+};
 
 exports.updateToDo = async (req,res)=>{
     try{
