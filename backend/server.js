@@ -3,14 +3,14 @@ const app = express();
 const cors = require('cors');
 const mongoose = require('mongoose');
 const  authRoutes = require('./routes/authRoutes');
-const toDoRoutes = require('./routes/ToDoRoutes');
+const toDoRoutes = require('./routes/toDoRoutes');
 
 require('dotenv').config();
 
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: ['http://localhost:5173', 'http://localhost:5174'],
     credentials: true
 }));
 app.use(express.json());

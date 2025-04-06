@@ -37,7 +37,7 @@ export default function Register() {
             };
             const response = await AuthServices.registerUser(dto);
             message.success(response.message || "Registration Successful");
-            setTimeout(() => navigate('/todo-list'), 1500);
+            setTimeout(() => navigate('/login'), 1500);
         } catch (err) {
             if (err.response?.status === 409) {
                 message.error(err.response.data?.message || "User already exists");

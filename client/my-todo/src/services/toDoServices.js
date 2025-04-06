@@ -64,14 +64,12 @@ export default {
         return handleRequest('post', '/create-to-do', data);
     },
 
-    updateToDo: async (taskId, data) => {
-        if (!taskId) {
-            throw new Error("Task ID is required");
-        }
-        if (!data || typeof data !== 'object') {
-            throw new Error("Update data must be an object");
-        }
-        return handleRequest('patch', `/update-to-do/${taskId}`, data);
+    updateToDo: async (taskId, data, updateType = 'status') => {
+        if (!taskId) throw new Error("Task ID required");
+        return handleRequest('patch', `/update-to-do/${taskId}`, {
+            ...data,
+            updateType
+        });
     },
 
     deleteToDo: async (taskId) => {

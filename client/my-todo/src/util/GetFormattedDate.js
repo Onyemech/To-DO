@@ -1,8 +1,13 @@
 export const getFormattedDate = (value) => {
-    let date = new Date(value);
-    let dateString = date.toDateString();
-    let hh = date.getHours();
-    let min = date.getMinutes();
-    let ss = date.getSeconds();
-    let finalDate = `${dateString} at ${hh}-${min}-${ss}`;
+    const date = new Date(value);
+    const dateString = date.toDateString();
+
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return `Task Created on 
+    ${dateString} at ${hours}:${minutes} ${ampm}`;
 }

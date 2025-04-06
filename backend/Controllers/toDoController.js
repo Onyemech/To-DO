@@ -54,18 +54,33 @@ exports.getAllToDo = async (req, res) => {
     }
 };
 
-exports.updateToDo = async (req,res)=>{
-    try{
+exports.updateToDo = async (req, res) => {
+    try {
         const {id} = req.params;
-        const data = req.body;
-        const result = await ToDo.findByIdAndUpdate(id, {$set:data},{returnOriginal:false});
-        console.log(result);
-        res.send({message:'ToDo Task Updated'})
-    }catch (err){
-        console.log(err);
-        res.status(500).send(err);
+        const {updateType, ...updateData} = req.body;
+        const result = await ToDo.findByIdAndUpdate(
+            id,
+            {$set: updateData},
+            {new: true}
+        );
+
+        const message = updateType === 'status'
+            ? 'Status updated successfully'
+            : 'Task updated successfully';
+
+        res.json({
+            success: true,
+            message,
+            data: result
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: 'Update failed',
+            error: err.message
+        });
     }
-}
+};
 
 exports.deleteToDo = async (req,res) =>{
     try{

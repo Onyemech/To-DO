@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import NavBar from "../../components/NavBar.jsx";
 import styles from "./Todo.module.css";
-import { Button, Divider, Input, message, Modal, Tag, Tooltip } from "antd";
+import {Button, Divider, Input, message, Modal, Select, Tag, Tooltip} from "antd";
 import { getErrorMessage } from "../../util/GetError.js";
 import { getFormattedDate } from "../../util/GetFormattedDate.js";
 import TodoServices from "../../services/toDoServices.js";
 import { useNavigate } from "react-router-dom";
 import { CheckCircleFilled, DeleteOutlined, EditOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useAuth } from "../../context/authContext.jsx";
+import oops from "../../assets/opps.gif"
 
 export default function ToDoList() {
     const [title, setTitle] = useState("");
@@ -17,11 +18,17 @@ export default function ToDoList() {
     const [allToDo, setAllToDo] = useState([]);
     const navigate = useNavigate();
     const [messageApi, contextHolder] = message.useMessage();
+    const [editingTask, setEditingTask] = useState(null);
+    const [editTitle, setEditTitle] = useState("");
+    const [editDescription, setEditDescription] = useState("");
+    const [editLoading, setEditLoading] = useState(false);
+    const [selectedFilter, setSelectedFilter] = useState("pending");
+    const [filteredTasks, setFilteredTasks] = useState([]);
+    const [filteredTodo, setFilteredTodo] = useState([]);
     const { user } = useAuth();
 
     useEffect(() => {
         const fetchTasks = async () => {
-            console.log("User in ToDoList:", user);
             if (!user?.userId) {
                 setAllToDo([]);
                 return;
@@ -29,11 +36,8 @@ export default function ToDoList() {
             try {
                 setLoading(true);
                 const response = await TodoServices.getAllToDo(user.userId);
-                console.log("Full response: ", response);
-
                 const tasks = response.data?.data || response.data || [];
                 setAllToDo(tasks);
-
             } catch (error) {
                 console.error("Error fetching tasks:", error);
                 setAllToDo([]);
@@ -41,9 +45,15 @@ export default function ToDoList() {
                 setLoading(false);
             }
         };
-
         fetchTasks();
     }, [user?.userId]);
+
+    useEffect(() => {
+        const pending = allToDo.filter(task => !task.isCompleted);
+        const completed = allToDo.filter(task => task.isCompleted);
+        setFilteredTasks(selectedFilter === "pending" ? pending : completed);
+        setFilteredTodo([]);
+    }, [selectedFilter, allToDo]);
 
     const handleSubmitTask = async () => {
         setLoading(true);
@@ -77,7 +87,38 @@ export default function ToDoList() {
     };
 
     const handleEdit = (item) => {
-        console.log("Editing:", item);
+        setEditingTask(item);
+        setEditTitle(item.title);
+        setEditDescription(item.description);
+    };
+
+    const handleEditSubmit = async () => {
+        setEditLoading(true);
+        try {
+            if (!editingTask?._id) throw new Error("No task selected");
+
+            const updatedData = {
+                title: editTitle.trim(),
+                description: editDescription.trim()
+            };
+
+            const response = await TodoServices.updateToDo(
+                editingTask._id,
+                updatedData,
+                'content'
+            );
+
+            setAllToDo(prev => prev.map(task =>
+                task._id === editingTask._id ? response.data : task
+            ));
+
+            messageApi.success("Task updated successfully");
+            setEditingTask(null);
+        } catch (err) {
+            messageApi.error(getErrorMessage(err));
+        } finally {
+            setEditLoading(false);
+        }
     };
 
     const handleDelete = async (item) => {
@@ -92,12 +133,11 @@ export default function ToDoList() {
 
     const handleUpdateStatus = async (item) => {
         try {
-            if (!item?._id) {
-                throw new Error("Task ID is missing");
-            }
-            const response = await TodoServices.updateToDo(item._id, {
-                isCompleted: !item.isCompleted
-            });
+            const response = await TodoServices.updateToDo(
+                item._id,
+                { isCompleted: !item.isCompleted },
+                'status'
+            );
             setAllToDo(prev => prev.map(task =>
                 task._id === item._id ? { ...task, isCompleted: !item.isCompleted } : task
             ));
@@ -105,6 +145,18 @@ export default function ToDoList() {
         } catch (err) {
             messageApi.error(getErrorMessage(err));
         }
+    };
+
+    const handleSearch = (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        if (!query) {
+            setFilteredTodo([]);
+            return;
+        }
+        const filteredList = allToDo.filter(task =>
+            task.title.toLowerCase().includes(query)
+        );
+        setFilteredTodo(filteredList);
     };
 
     return (
@@ -116,7 +168,8 @@ export default function ToDoList() {
                     <h2>Your Tasks</h2>
                     <Input
                         className={styles.searchInput}
-                        placeholder="Search Your Task Here..."
+                        onChange={handleSearch}
+                        placeholder="Search for Your Existing Task Here..."
                     />
                     <Button
                         onClick={() => setIsAdding(true)}
@@ -125,12 +178,22 @@ export default function ToDoList() {
                     >
                         Add Task
                     </Button>
+                    <Select
+                        value={selectedFilter}
+                        style={{width:180, marginRight: 10}}
+                        onChange={(value) => setSelectedFilter(value)}
+                        size={"large"}
+                        options={[
+                            {value:"pending",label:'Pending'},
+                            {value:"completed",label:'Completed'}
+                        ]}
+                    />
                 </div>
                 <Divider/>
 
                 <div className={styles.tasksContainer}>
-                    {allToDo.length > 0 ? (
-                        allToDo.map((item) => (
+                    {(filteredTodo.length > 0 || filteredTasks.length > 0) ? (
+                        filteredTodo.length > 0 ? filteredTodo : filteredTasks).map((item) => (
                             <div key={item._id} className={styles.toDoCard}>
                                 <div className={styles.toDoCardHeader}>
                                     <h3>{item.title}</h3>
@@ -172,10 +235,11 @@ export default function ToDoList() {
                                     </div>
                                 </div>
                             </div>
-                        ))
+                        )
                     ) : (
                         <div className={styles.emptyState}>
-                            <p>No tasks found. Add your first task!</p>
+                            <p>No data</p>
+                            <img src={oops}/>
                             <Button
                                 type="primary"
                                 onClick={() => setIsAdding(true)}
@@ -208,6 +272,26 @@ export default function ToDoList() {
                     />
                 </Modal>
             </section>
+            <Modal
+                title="Edit Task"
+                open={!!editingTask}
+                onOk={handleEditSubmit}
+                onCancel={() => setEditingTask(null)}
+                confirmLoading={editLoading}
+            >
+                <Input
+                    placeholder="Title"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    style={{ marginBottom: '1rem' }}
+                />
+                <Input.TextArea
+                    placeholder="Description"
+                    value={editDescription}
+                    onChange={(e) => setEditDescription(e.target.value)}
+                    rows={4}
+                />
+            </Modal>
         </>
     );
 }

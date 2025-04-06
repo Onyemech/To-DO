@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Dropdown } from "antd";
+import {Dropdown, message} from "antd";
 import avatar from "../assets/login.png";
 import logo from "../assets/logo.gif";
 import "./NavBar.css";
@@ -19,7 +19,8 @@ export default function NavBar({ active }) {
 
         try {
             await logout();
-            navigate("/login");
+            navigate("/");
+            message.success("Logout successful");
         } catch (error) {
             console.error("Logout failed:", error);
         } finally {
