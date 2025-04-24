@@ -10,9 +10,11 @@ exports.createToDo = async (req, res) => {
 
         const dto = {
             title: req.body.title,
-            description: req.body.description,
+            description: req.body.description || '',
             isCompleted: req.body.isCompleted || false,
-            ...(req.user && { createdBy: new mongoose.Types.ObjectId(req.user.userId) })
+            reminder: req.body.reminder ? new Date(req.body.reminder) : null,
+            createdBy: req.body.createdBy || (req.user ? req.user.userId : null),
+            playerId: req.body.playerId || null  // Include playerId from request
         };
 
         const todo = new ToDo(dto);
@@ -56,12 +58,15 @@ exports.getAllToDo = async (req, res) => {
 
 exports.updateToDo = async (req, res) => {
     try {
-        const {id} = req.params;
-        const {updateType, ...updateData} = req.body;
+        const { id } = req.params;
+        const { updateType, ...updateData } = req.body;
+        if (updateData.reminder) {
+            updateData.reminder = new Date(updateData.reminder); // Convert reminder to Date
+        }
         const result = await ToDo.findByIdAndUpdate(
             id,
-            {$set: updateData},
-            {new: true}
+            { $set: updateData },
+            { new: true }
         );
 
         const message = updateType === 'status'
@@ -82,12 +87,12 @@ exports.updateToDo = async (req, res) => {
     }
 };
 
-exports.deleteToDo = async (req,res) =>{
-    try{
-      const {id} = req.params;
-      const result = await ToDo.findByIdAndDelete(id);
-      console.log(result);
-      res.send({message:"ToDo Task Deleted!"})
+exports.deleteToDo = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await ToDo.findByIdAndDelete(id);
+        console.log(result);
+        res.send({ message: "ToDo Task Deleted!" });
     } catch (err) {
         console.log(err);
         res.status(400).send(err);

@@ -1,15 +1,14 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react';
 import styles from './login.module.css';
-import login from '../../assets/login.gif'
+import login from '../../assets/login.gif';
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Input, App } from 'antd';
 import AuthServices from "../../services/authServices.js";
-import {getErrorMessage} from "../../util/GetError.js";
-import {useAuth} from "../../context/authContext.jsx";
+import { getErrorMessage } from "../../util/GetError.js";
+import { useAuth } from "../../context/authContext.jsx";
 
 export default function Login() {
-    const {login: authLogin} = useAuth();
-
+    const { login: authLogin } = useAuth();
     const { message } = App.useApp();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -32,33 +31,39 @@ export default function Login() {
 
         try {
             setLoading(true);
-            let dto = { email: normalizedEmail, password };
+            const dto = { email: normalizedEmail, password };
             const response = await AuthServices.loginUser(dto);
 
+            const serverData = response.data.data;
+            const expiresAt = new Date().getTime() + serverData.expiresIn * 1000;
+
             const userData = {
-                firstName: response.data.firstName,
-                userId: response.data.userId.toString(),
-                email: response.data.email.toLowerCase(),
-                token: response.data.token
+                firstName: serverData.firstName,
+                userId: serverData.userId.toString(),
+                email: serverData.email.toLowerCase(),
+                token: serverData.token,
+                expiresIn: expiresAt,
             };
+
             authLogin(userData);
             localStorage.setItem('user', JSON.stringify(userData));
-
             message.success("Login successful");
             navigate('/todo-list');
         } catch (err) {
-            console.log(err);
+            console.log('Login error:', err);
             message.error(getErrorMessage(err));
         } finally {
             setLoading(false);
         }
     };
 
+
     return (
         <div className={styles.login_card}>
             <img src={login} alt={'Login'} />
             <h2>Login</h2>
             <div className={styles.input_wrapper}>
+                <h4>Email</h4>
                 <Input
                     placeholder={"Email"}
                     value={email}
@@ -66,6 +71,7 @@ export default function Login() {
                 />
             </div>
             <div className={styles.input_wrapper}>
+                <h4>Password</h4>
                 <Input.Password
                     placeholder={"Password"}
                     value={password}
@@ -85,5 +91,5 @@ export default function Login() {
                 Login
             </Button>
         </div>
-    )
+    );
 }

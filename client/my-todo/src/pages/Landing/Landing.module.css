@@ -1,28 +1,107 @@
-.landing_wrapper{
+/* Base styles (mobile first) */
+.landing_wrapper {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    margin-top: 100px;
-    padding: 2rem;
+    margin-top: 2rem;
+    padding: 1rem;
+    box-sizing: border-box;
+    width: 100%;
 }
 
-.landing_text{
-    width: 40%;
+.landing_text {
+    width: 100%;
+    order: 2; /* Text comes after image by default */
 }
 
-.landing_text h1{
-    font-size: 4rem;
+.landing_text h1 {
+    font-size: 2.2rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
 }
 
-.landing_img{
-    width: 50%;
-    margin-left: 2rem;
+.landing_img {
+    width: 100%;
+    margin: 1rem 0 2rem 0;
+    order: 1; /* Image first on mobile */
 }
 
 .landing_img img {
     width: 100%;
     height: auto;
-    max-width: 600px;
-    border-radius: 8px;
+    max-width: 100%;
+    border-radius: 12px;
+    display: block;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* Tablet (600px and up) */
+@media (min-width: 600px) {
+    .landing_wrapper {
+        margin-top: 3rem;
+        padding: 1.5rem;
+    }
+
+    .landing_text h1 {
+        font-size: 2.8rem;
+    }
+
+    .landing_img img {
+        max-width: 80%;
+        margin: 0 auto;
+    }
+}
+
+/* Small Desktop (900px and up) */
+@media (min-width: 900px) {
+    .landing_wrapper {
+        flex-direction: row;
+        justify-content: space-between;
+        margin-top: 4rem;
+        padding: 2rem;
+        max-width: 1400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .landing_text {
+        width: 45%;
+        order: 1;
+    }
+
+    .landing_img {
+        width: 50%;
+        margin: 0 0 0 2rem;
+        order: 2;
+    }
+
+    .landing_text h1 {
+        font-size: 3.5rem;
+    }
+}
+
+/* Large Desktop (1200px and up) */
+@media (min-width: 1200px) {
+    .landing_text h1 {
+        font-size: 4rem;
+    }
+
+    .landing_img img {
+        max-width: 600px;
+    }
+}
+
+/* Touch target improvements */
+.landing_text a,
+.landing_text button {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* Safe area insets for modern devices */
+@supports(padding: max(0px)) {
+    .landing_wrapper {
+        padding-left: max(2rem, env(safe-area-inset-left));
+        padding-right: max(2rem, env(safe-area-inset-right));
+    }
+}

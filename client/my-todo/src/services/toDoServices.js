@@ -46,6 +46,11 @@ const handleRequest = async (method, url, data = null) => {
         };
         console.error("API Error:", errorDetails);
 
+        if (error.response?.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+        }
+
         throw new Error(error.response?.data?.message ||
             error.message ||
             "An error occurred during the API request");
@@ -53,7 +58,6 @@ const handleRequest = async (method, url, data = null) => {
 };
 
 export default {
-
     createToDo: async (data) => {
         if (!data || typeof data !== 'object') {
             throw new Error("Task data must be an object");
@@ -84,5 +88,6 @@ export default {
             throw new Error("User ID is required");
         }
         return handleRequest('get', `/get-all-to-do/${userId}`);
-    }
+    },
+
 };

@@ -13,7 +13,7 @@
 }
 
 .avatar-image {
-    width: 32px;
+    width: 22px;
     height: 32px;
     border-radius: 50%;
     object-fit: cover;
@@ -22,4 +22,98 @@
 .avatar-name {
     font-size: 14px;
     font-weight: 500;
+}
+
+header nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+}
+
+.logo_wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo_wrapper img {
+    height: 40px;
+}
+
+.navigation-menu {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.navigation-menu li a {
+    text-decoration: none;
+    color: #333;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.navigation-menu li a:hover {
+    background-color: #f0f0f0;
+}
+
+.activeNav {
+    background-color: #e6f7ff;
+    color: #1890ff !important;
+}
+
+
+@media (max-width: 768px) {
+    header nav {
+        padding: 0.5rem 1rem;
+    }
+
+    .logo_wrapper img {
+        height: 32px;
+    }
+
+    .logo_wrapper h4 {
+        font-size: 0.9rem;
+        display: block;
+    }
+
+    .navigation-menu {
+        gap: 0.5rem;
+    }
+
+    .navigation-menu li a {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+    }
+
+    .avatar-container {
+        padding: 4px 6px;
+    }
+
+    .avatar-image {
+        width: 20px;
+        height: 28px;
+    }
+
+    .avatar-name {
+        font-size: 0.8rem;
+        max-width: 80px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo_wrapper h4 {
+        display: none;
+    }
+
+    .navigation-menu li a {
+        padding: 0.3rem 0.5rem;
+    }
 }

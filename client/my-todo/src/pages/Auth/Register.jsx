@@ -1,4 +1,4 @@
-import React,{useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import styles from './register.module.css';
 import register from '../../assets/register.gif'
 import {Link, useNavigate} from "react-router-dom";
@@ -38,6 +38,82 @@ export default function Register() {
             const response = await AuthServices.registerUser(dto);
             message.success(response.message || "Registration Successful");
             setTimeout(() => navigate('/login'), 1500);
+
+            useEffect(() => {
+                const initializeOneSignal = async () => {
+                    const waitForOneSignal = () => new Promise((resolve, reject) => {
+                        const check = () => {
+                            if (window.OneSignal) {
+                                resolve();
+                            } else if (Date.now() - startTime > 30000) {
+                                reject(new Error('OneSignal SDK failed to load within 30 seconds'));
+                            } else {
+                                setTimeout(check, 100);
+                            }
+                        };
+                        const startTime = Date.now();
+                        check();
+                    });
+
+                    try {
+                        await waitForOneSignal();
+                        console.log('OneSignal loaded');
+
+                        await window.OneSignal.init({
+                            appId: '1d1f6414-0e0a-4031-aa80-3ed678c28a3b',
+                            allowLocalhostAsSecureOrigin: true,
+                        });
+
+                        const permission = await window.OneSignal.Notifications.permission;
+                        if (permission === 'default') {
+                            await window.OneSignal.showSlidedownPrompt();
+                        }
+
+                        const playerId = await window.OneSignal.getUserId();
+                        if (playerId) {
+                            const user = JSON.parse(localStorage.getItem('user'));
+                            if (user?.userId) {
+                                await fetch('http://localhost:5000/api/update-player-id', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        Authorization: `Bearer ${user.token}`,
+                                    },
+                                    body: JSON.stringify({ playerId }),
+                                });
+                            }
+                        }
+
+                        window.OneSignal.on('subscriptionChange', async (isSubscribed) => {
+                            if (isSubscribed) {
+                                const newPlayerId = await window.OneSignal.getUserId();
+                                if (newPlayerId) {
+                                    const user = JSON.parse(localStorage.getItem('user'));
+                                    if (user?.userId) {
+                                        await fetch('http://localhost:5000/api/update-player-id', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                Authorization: `Bearer ${user.token}`,
+                                            },
+                                            body: JSON.stringify({ playerId: newPlayerId }),
+                                        });
+                                    }
+                                }
+                            }
+                        });
+                    } catch (error) {
+                        console.error('OneSignal init failed:', error);
+                        message.error("Failed to initialize notifications.");
+                    }
+                };
+
+                const user = JSON.parse(localStorage.getItem('user'));
+                if (user?.token) {
+                    initializeOneSignal();
+                }
+            }, []);
+
         } catch (err) {
             if (err.response?.status === 409) {
                 message.error(err.response.data?.message || "User already exists");
@@ -55,31 +131,35 @@ export default function Register() {
         <div>
             <div className={styles.login_card}>
                 <img src={register} alt={'register'} />
-                <div className={styles.input_wrapper1}>
+                <div className={styles.input_wrapper}>
                     <div className={styles.input_wrapper}>
+                        <h4>First Name</h4>
                         <Input
                             placeholder={"First Name"}
                             value={firstName}
-                            onChange={(e)=>setFirstName(e.target.value)} />
+                            onChange={(e) => setFirstName(e.target.value)}/>
                     </div>
                     <div className={styles.input_wrapper}>
+                        <h4>Last Name</h4>
                         <Input
                             placeholder={"Last Name"}
                             value={lastName}
-                            onChange={(e)=>setLastName(e.target.value)} />
+                            onChange={(e) => setLastName(e.target.value)}/>
                     </div>
                 </div>
                 <div className={styles.input_wrapper}>
+                    <h4>Email</h4>
                     <Input
                         placeholder={"someone@example.com"}
                         value={email}
-                        onChange={(e)=>setEmail(e.target.value)} />
+                        onChange={(e) => setEmail(e.target.value)}/>
                 </div>
                 <div className={styles.input_wrapper}>
+                    <h4>Password</h4>
                     <Input.Password
                         placeholder={"Password"}
                         value={password}
-                        onChange={(e)=>setPassword(e.target.value)} />
+                        onChange={(e) => setPassword(e.target.value)}/>
                 </div>
                 <div className={styles.input_info}>
                     Already have an account? <Link to={"/login"}>Login</Link>

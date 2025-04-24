@@ -65,7 +65,7 @@ async function loginUser(req, res) {
             return res.status(401).send({message: 'You Entered the Wrong password'});
         }
 
-        let token = jwt.sign({userId: user._id}, secretKey, {expiresIn: '1h'});
+        let token = jwt.sign({userId: user._id.toString()}, secretKey, {expiresIn: '1h'});
         let finalData = {
             userId: user._id,
             email: user.email,
@@ -74,7 +74,10 @@ async function loginUser(req, res) {
             token,
             expiresIn: 3600
         }
-        res.send(finalData);
+        res.status(200).json({
+            success: true,
+            data: finalData
+        });
     }catch (err){
         console.log('Login error',err);
         return res.status(400).json({
@@ -84,9 +87,30 @@ async function loginUser(req, res) {
     }
 }
 
+async function updatePlayerId(req, res) {
+    try {
+        console.log('Received request to update playerId for user:', req.user.userId);
+        const userId = mongoose.Types.ObjectId(req.user.userId);
+        const user = await User.findById(userId);
+        if (user) {
+            user.playerId = req.body.playerId;
+            await user.save();
+            console.log('Player ID updated successfully for user:', req.user.userId);
+            res.json({ message: 'Player ID updated successfully' });
+        } else {
+            console.log('User not found for ID:', req.user.userId);
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error updating playerId:', error);
+        res.status(500).json({ message: 'Error updating player ID', error });
+    }
+}
+
 const AuthController = {
     registerUser,
-    loginUser
+    loginUser,
+    updatePlayerId
 };
 
 module.exports = AuthController;

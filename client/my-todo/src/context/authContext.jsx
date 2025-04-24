@@ -6,7 +6,8 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
     const login = (userData) => {
-        const updatedUserData = { ...userData, _lastUpdate: Date.now() };
+        const expiresAt = Date.now() + (userData.expiresIn * 1000); // Calculate absolute expiration time in milliseconds
+        const updatedUserData = { ...userData, expiresAt, _lastUpdate: Date.now() };
         localStorage.setItem('user', JSON.stringify(updatedUserData));
         setUser(updatedUserData);
         window.dispatchEvent(new Event('authChange'));
